@@ -6,6 +6,16 @@ const { readFile } = require("fs/promises")
 const fs = require('fs')
 
 
+
+const walletPath = './walletData.csv';  // 这里换成钱包文件目录
+const rpc = "https://public-celestia-rpc.numia.xyz";  // 这里换成主网RPC
+
+const prefix = 'celestia';  // 链名称
+const transferCoinName = 'utia'  //转账的币种，tia这里显示就是utia
+const gasamount = 30000  // 用作预留gas的数量
+
+
+
 // 将CSV文件转换为Objects
 const convertCSVToObjectSync = (filePath) => {
     const objects = [];
@@ -27,20 +37,14 @@ const convertCSVToObjectSync = (filePath) => {
     }
     return objects;
   };
-  
 
-const walletPath = './walletData.csv';  // 这里换成钱包文件目录
-const rpc = "https://rpc-celestia-testnet-mocha.keplr.app";  // 这里换成主网RPC
-const prefix = 'celestia';  // 链名称
-const transferCoinName = 'utia'  //转账的币种，tia这里显示就是utia
-const gasamount = 30000  // 用作预留gas的数量
 const walletData = convertCSVToObjectSync(walletPath);
-
 ;(
     async () => {
         console.log('开始循环...')
         for (wt of walletData) {
             const client = await StargateClient.connect(rpc)
+            console.log(await client.getChainId())
         // 从助记词获得钱包Signer
         const wtSigner = await DirectSecp256k1HdWallet.fromMnemonic(wt.Mnemonic, { prefix: prefix});
         const wtAddress = (await wtSigner.getAccounts())[0].address;
